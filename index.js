@@ -1,6 +1,7 @@
 const TelegramApi = require("node-telegram-bot-api");
+const kb = require("./src/keyboards");
 const token = "5662298858:AAGODGPYzZPMt28ge4cAJ4UWXJvyVkAi0Bo";
-const { mainOptions } = require("./src/options");
+const { mainOptions, channelsList } = require("./src/options");
 
 const bot = new TelegramApi(token, { polling: true });
 
@@ -26,7 +27,6 @@ const start = () => {
   bot.on("message", async (msg) => {
     const text = msg.text;
     const chatId = msg.chat.id;
-    console.log({ msg });
     if (text === "/start") {
       return bot.sendMessage(
         chatId,
@@ -44,40 +44,70 @@ const start = () => {
       return bot.sendMessage(chatId, `Введите название фильма: `);
     }
 
-    return bot.sendMessage(chatId, `Я вас не понимаю!`);
+    // return bot.sendMessage(chatId, `Я вас не понимаю!`);
   });
 };
+
+bot.on("message", async (msg) => {
+  const text = msg.text;
+  const chatId = msg.chat.id;
+
+  switch (text) {
+    case kb.home.find_film:
+      return checkSubscription(chatId)
+      break;
+    case kb.home.info_bot:
+      await bot.sendMessage(chatId, `Телеграм бот от AS_DI05 `);
+      break;
+    default:
+      // await bot.sendMessage(chatId, `Пусто`);
+      break;
+  }
+})
+
+async function checkSubscription(chatId) {
+  let pass = await bot.getChatMember('@minor_theme', chatId)
+  console.log(pass, 'pass');
+
+  if (pass.status === 'creator' || pass.status === 'left') {
+    await bot.sendMessage(chatId, `Сначала подпишитесь на следующие каналы:`, channelsList);
+  } else if (pass.status === 'member') {
+    await bot.sendMessage(chatId, `Ура все готово! \n Ожидайте`);
+  }
+}
+
+// bot.on('new_chat_members', (msg) => {
+//   // console.log(msg);
+//   if (msg.new_chat_members.username === me.username) {
+//     console.log('join %s(%s)', msg.chat.title, msg.chat.id);
+//     channels.set(msg.chat.id);
+//     saveData();
+//   }
+// });
 
 bot.on("callback_query", async (msg) => {
   const data = msg.data;
   const chatId = msg.message.chat.id;
   console.log(data, "data");
-  //   if (data === "/again") {
-  //     return startGame(chatId);
-  //   }
-  //   if (data == chats[chatId]) {
-  //     return await bot.sendMessage(
-  //       chatId,
-  //       `Поздравляю! Вы правильно отгадали цифру "${data}"`,
-  //       againOptions
-  //     );
-  //   } else {
-  //     return await bot.sendMessage(
-  //       chatId,
-  //       `К сожалению вы не угадали! \n Бот загадал цифру "${chats[chatId]}" `,
-  //       againOptions
-  //     );
-  //   }
+
+
+  if (data === "check") {
+    return checkSubscription(chatId)
+  }
+  // if (data == chats[chatId]) {
+  //   return await bot.sendMessage(
+  //     chatId,
+  //     `Поздравляю! Вы правильно отгадали цифру "${data}"`,
+  //     againOptions
+  //   );
+  // } else {
+  //   return await bot.sendMessage(
+  //     chatId,
+  //     `К сожалению вы не угадали! \n Бот загадал цифру "${chats[chatId]}" `,
+  //     againOptions
+  //   );
+  // }
 });
 
-bot
-  .getChatMember(() => {
-    console.log(msg, "");
-    console.log(data, "data");
-    if (data.status != "administrator") isAdmin = 0;
-  })
-  .catch(function (e) {
-    if (err.message.indexOf("CHAT_ADMIN_REQUIRED") != -1) isAdmin = 0;
-  });
 
 start();
