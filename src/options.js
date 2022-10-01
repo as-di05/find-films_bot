@@ -1,4 +1,4 @@
-const { home } = require("./keyboards");
+const { home, referHome } = require("./keyboards");
 
 module.exports = {
   mainOptions: {
@@ -10,6 +10,15 @@ module.exports = {
           { text: "Тест", callback_data: 5 },
         ],
         [home.info_bot],
+      ],
+    }),
+  },
+
+  referOptions: {
+    reply_markup: JSON.stringify({
+      keyboard: [
+        [referHome.add_film],
+        [referHome.my_films, referHome.my_referals],
       ],
     }),
   },
