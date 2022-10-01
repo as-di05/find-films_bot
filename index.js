@@ -99,8 +99,8 @@ bot.on("message", async (msg) => {
       break;
     case kb.referHome.my_films:
       const films = await helper.findRefersFilms(msg)
-      let a = films.map((film)=> { return film.film_name})      
-      console.log(a);
+      // let a = films.map((film)=> { return film.film_name})      
+      // console.log(a);
       await bot.sendMessage(chatId, `Список ваших фильмов: \n`);
       break;
     case kb.referHome.my_referals:
