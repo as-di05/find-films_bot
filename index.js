@@ -2,7 +2,12 @@ const TelegramApi = require("node-telegram-bot-api");
 const config = require("./src/service/config");
 const helper = require("./src/service/helper");
 const kb = require("./src/keyboards");
-const { mainOptions, channelsList, referOptions } = require("./src/options");
+const {
+  mainOptions,
+  channelsList,
+  referOptions,
+  findTypesOptions,
+} = require("./src/options");
 const mongoose = require("mongoose");
 const FilmModel = require("./src/models/films.model");
 
@@ -16,8 +21,8 @@ async function connect() {
 connect();
 
 let film = new FilmModel({
-  id_film: "1",
-  film_name: "Властелин колец",
+  id_film: "2",
+  film_name: "Интерстеллар",
   id_refer: 1,
 });
 
@@ -84,7 +89,14 @@ bot.on("message", async (msg) => {
 
   switch (text) {
     case kb.home.find_film:
-      return checkSubscription(chatId);
+      if (checkSubscription(chatId)) {
+        await bot.sendMessage(
+          chatId,
+          `Введите название фильма:`
+          // findTypesOptions
+        );
+        return findFilm();
+      }
     case kb.home.info_bot:
       await bot.sendMessage(chatId, `Телеграм бот от AS_DI05 `);
       break;
@@ -98,14 +110,21 @@ bot.on("message", async (msg) => {
       await bot.sendMessage(chatId, `Добавление фильма `);
       break;
     case kb.referHome.my_films:
-      const films = await helper.findRefersFilms(msg)
-      // let a = films.map((film)=> { return film.film_name})      
-      // console.log(a);
-      await bot.sendMessage(chatId, `Список ваших фильмов: \n`);
+      const films = await helper.findRefersFilms(msg);
+
+      let a = films.map((film, i) => {
+        return (i > 0 ? "\n" : "") + film.id_film + " - " + film.film_name;
+      });
+      await bot.sendMessage(chatId, `Список ваших фильмов: \n${a}`);
       break;
     case kb.referHome.my_referals:
+      bot.sendMessage(chatId, `У вас N подписчиков `);
       break;
-
+    case kb.referHome.refer_link:
+      link = helper.getReferLink(msg)
+      console.log({link});
+      bot.sendMessage(chatId, `Ваша ссылка для приглашения: \n\n ${link}`, );
+      break;
     default:
       break;
   }
@@ -122,8 +141,26 @@ async function checkSubscription(chatId) {
       channelsList
     );
   } else if (pass.status === "member") {
-    await bot.sendMessage(chatId, `Ура все готово! \n Ожидайте`);
+    return true;
   }
+}
+
+async function findFilm() {
+  bot.on("message", async (msg) => {
+    const text = msg.text;
+    const chatId = msg.chat.id;
+    const film = await helper.findToCodeFilms(msg);
+    console.log(film, "fil");
+    if (film) {
+      return getInfoFilm(chatId, film);
+    }
+  });
+}
+
+async function getInfoFilm(chatId, film) {
+  bot.sendMessage(chatId, `Название фильма: \n<b>- ${film.film_name}</b>`, {
+    parse_mode: "HTML",
+  });
 }
 
 // bot.on('new_chat_members', (msg) => {
@@ -139,23 +176,10 @@ bot.on("callback_query", async (msg) => {
   const data = msg.data;
   const chatId = msg.message.chat.id;
   // console.log(data, "data");
-
+  // console.log({ data });
   if (data === "check") {
     return checkSubscription(chatId);
   }
-  // if (data == chats[chatId]) {
-  //   return await bot.sendMessage(
-  //     chatId,
-  //     `Поздравляю! Вы правильно отгадали цифру "${data}"`,
-  //     againOptions
-  //   );
-  // } else {
-  //   return await bot.sendMessage(
-  //     chatId,
-  //     `К сожалению вы не угадали! \n Бот загадал цифру "${chats[chatId]}" `,
-  //     againOptions
-  //   );
-  // }
 });
 
 start();

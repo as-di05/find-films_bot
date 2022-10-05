@@ -1,4 +1,4 @@
-const { home, referHome } = require("./keyboards");
+const { home, referHome, findTypes } = require("./keyboards");
 
 module.exports = {
   mainOptions: {
@@ -19,6 +19,7 @@ module.exports = {
       keyboard: [
         [referHome.add_film],
         [referHome.my_films, referHome.my_referals],
+        [referHome.refer_link]
       ],
     }),
   },
@@ -49,6 +50,15 @@ module.exports = {
       inline_keyboard: [
         [{ text: "@minor_theme", url: "https://t.me/minor_theme" }],
         [{ text: "Проверка", callback_data: "check" }],
+      ],
+    }),
+  },
+
+  findTypesOptions: {
+    reply_markup: JSON.stringify({
+      inline_keyboard: [
+        [findTypes.find_code, findTypes.find_name],
+        [findTypes.btn_out]
       ],
     }),
   },

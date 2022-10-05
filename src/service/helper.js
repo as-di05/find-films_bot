@@ -1,6 +1,12 @@
 const ReferModel = require("../models/refers.model");
 const FilmModel = require("../models/films.model");
 
+async function getReferLink(msg) {
+  const refer = await findRefer(msg);
+  const my_link = 'https://t.me/proFilmsFind_bot?start=' + refer.id_refer
+  return my_link;
+}
+
 async function createNewReferal(msg) {
   const text = msg.text;
   const idRefer = text.split(" ")[1];
@@ -15,13 +21,31 @@ async function findRefer(msg) {
 }
 
 async function findRefersFilms(msg) {
-    const text = msg.text;
-    const id_user = msg.from.id_refer;
-    const refer = await findRefer(msg)
-    const {id_refer} = refer
+  const text = msg.text;
+  const id_user = msg.from.id_refer;
+  const refer = await findRefer(msg);
+  const { id_refer } = refer;
 
-    const films = await FilmModel.findOne({ id_refer: id_refer });
-    return films;
+  const films = await FilmModel.find({ id_refer: id_refer });
+  return films;
+}
+
+async function findToCodeFilms(msg) {
+  const text = msg.text;
+  let films = [];
+
+  console.log({ text });
+  if (text.length > 0) {
+    films = await FilmModel.findOne({ id_film: text });
   }
 
-module.exports = { createNewReferal, findRefer, findRefersFilms };
+  return films;
+}
+
+module.exports = {
+  getReferLink,
+  createNewReferal,
+  findRefer,
+  findRefersFilms,
+  findToCodeFilms,
+};
