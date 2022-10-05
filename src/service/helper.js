@@ -3,7 +3,9 @@ const FilmModel = require("../models/films.model");
 
 async function getReferLink(msg) {
   const refer = await findRefer(msg);
+  console.log({refer});
   const my_link = 'https://t.me/proFilmsFind_bot?start=' + refer.id_refer
+  console.log({my_link});
   return my_link;
 }
 

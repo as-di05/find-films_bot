@@ -121,7 +121,7 @@ bot.on("message", async (msg) => {
       bot.sendMessage(chatId, `У вас N подписчиков `);
       break;
     case kb.referHome.refer_link:
-      link = helper.getReferLink(msg)
+      link = await helper.getReferLink(msg)
       console.log({link});
       bot.sendMessage(chatId, `Ваша ссылка для приглашения: \n\n ${link}`, );
       break;
