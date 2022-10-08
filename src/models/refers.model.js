@@ -8,6 +8,9 @@ const NewRefersSchema = new Schema({
   id_user: {
     type: Number,
     required: true,
+  },
+  name_refer: {
+    type: String,
   }
 });
 
