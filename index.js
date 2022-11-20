@@ -2,7 +2,7 @@ const TelegramApi = require("node-telegram-bot-api");
 const config = require("./src/service/config");
 const helper = require("./src/service/helper");
 const kb = require("./src/keyboards");
-const { mainOptions, channelsList, referOptions, findTypesOptions } = require("./src/options");
+const { mainOptions, channelsList, referOptions, findTypesOptions, outOptions, newFilmOptions } = require("./src/options");
 const mongoose = require("mongoose");
 const FilmModel = require("./src/models/films.model");
 
@@ -95,10 +95,11 @@ bot.on("message", async (msg) => {
 
   switch (text) {
     case kb.referHome.add_film:
-      await bot.sendMessage(chatId, `Добавление фильма `);
+      addFilm(chatId)
       break;
     case kb.referHome.my_films:
       const films = await helper.findRefersFilms(msg)
+
       let a = films.map((film, i) => {
         return (
           (i > 0 ? '\n' : '') + film.id_film + ' - ' + film.film_name
@@ -112,8 +113,22 @@ bot.on("message", async (msg) => {
     default:
       break;
   }
-
 });
+
+async function addFilm(chatId) {
+  await bot.sendMessage(chatId, `Введите название фильма: `, outOptions);
+
+  bot.on("message", async (msg) => {
+    const text = msg.text;
+    // const films = await helper.findToCodeFilms(msg)
+    console.log(text, 'txt');
+    if (text !== 'out') {
+      await bot.sendMessage(chatId, `Название фильма: ${text} \nЗаполните остальные поля`, newFilmOptions);
+    } else {
+      return;
+    }
+  })
+}
 
 async function checkSubscription(chatId) {
   let pass = await bot.getChatMember("@minor_theme", chatId);
@@ -127,7 +142,7 @@ async function checkSubscription(chatId) {
     );
   } else if (pass.status === "member") {
     await bot.sendMessage(chatId,
-      `Введите название фильма:`,
+      `Введите код фильма:`,
       // findTypesOptions
     );
     findFilm()
@@ -135,15 +150,11 @@ async function checkSubscription(chatId) {
 }
 
 
-
-
 async function findFilm() {
   bot.on("message", async (msg) => {
     const text = msg.text;
     const chatId = msg.chat.id;
     const films = await helper.findToCodeFilms(msg)
-    console.log(films, 'fil');
-
   })
 }
 
@@ -159,10 +170,12 @@ async function findFilm() {
 bot.on("callback_query", async (msg) => {
   const data = msg.data;
   const chatId = msg.message.chat.id;
-  // console.log(data, "data");
   console.log({ data })
   if (data === "check") {
     return checkSubscription(chatId);
+  }
+  if (data === "out") {
+    return bot.sendMessage(chatId, `123`, referOptions);
   }
 
 });

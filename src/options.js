@@ -1,4 +1,4 @@
-const { home, referHome, findTypes } = require("./keyboards");
+const { home, referHome, findTypes, outBack, newFilm } = require("./keyboards");
 
 module.exports = {
   mainOptions: {
@@ -19,6 +19,27 @@ module.exports = {
       keyboard: [
         [referHome.add_film],
         [referHome.my_films, referHome.my_referals],
+      ],
+    }),
+  },
+
+  outOptions: {
+    reply_markup: JSON.stringify({
+      inline_keyboard: [
+        [outBack.btn_out],
+      ],
+    }),
+  },
+
+  newFilmOptions: {
+    reply_markup: JSON.stringify({
+      inline_keyboard: [
+        [newFilm.name],
+        [newFilm.id_film],
+        [newFilm.description],
+        [newFilm.poster],
+        [newFilm.trailer],
+        [newFilm.out, newFilm.save],
       ],
     }),
   },

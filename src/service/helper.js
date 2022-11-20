@@ -28,10 +28,8 @@ async function findToCodeFilms(msg) {
   const text = msg.text;
   let films = []
 
-  console.log({ text });
   if (text.length > 0) {
     films = await FilmModel.findOne({ id_film: text });
-    console.log({ films });
   }
 
   return films;
